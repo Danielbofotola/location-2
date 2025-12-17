@@ -14,6 +14,12 @@ class Reservation extends Model
         'heure_debut',
         'heure_fin',
         'nombre_participants',
+        'total',
     ];
 
+    protected $casts = [
+        'date' => 'date',          // transforme en Carbon
+        'heure_debut' => 'datetime:H:i', // ou 'string' si tu veux rester simple
+        'heure_fin' => 'datetime:H:i',
+    ];
 }

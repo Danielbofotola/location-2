@@ -2,64 +2,110 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reservation;
 use Illuminate\Http\Request;
+use App\Models\Reservation;
 
 class ReservationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // ---------------- ADMIN ----------------
+
+    // Liste toutes les réservations (admin)
     public function index()
     {
-        //
+        $reservations = Reservation::orderBy('id', 'desc')->paginate(10);
+        return view('admin.reservations.index', compact('reservations'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // Formulaire création (admin)
     public function create()
     {
-        //
+        return view('admin.reservations.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Sauvegarde une nouvelle réservation (admin)
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'numero_telephone' => 'required|string|max:20',
+            'date' => 'required|date',
+            'heure_debut' => 'required',
+            'heure_fin' => 'required',
+            'nombre_participants' => 'required|integer|min:1',
+            'total' => 'required|numeric|min:0',
+        ]);
+
+        Reservation::create($request->all());
+
+        return redirect()->route('reservations.index')->with('success', 'Réservation créée avec succès !');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Reservation $reservation)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
+    // Formulaire édition (admin)
     public function edit(Reservation $reservation)
     {
-        //
+        return view('admin.reservations.edit', compact('reservation'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    // Mise à jour (admin)
     public function update(Request $request, Reservation $reservation)
     {
-        //
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'numero_telephone' => 'required|string|max:20',
+            'date' => 'required|date',
+            'heure_debut' => 'required',
+            'heure_fin' => 'required',
+            'nombre_participants' => 'required|integer|min:1',
+            'total' => 'required|numeric|min:0',
+        ]);
+
+        $reservation->update($request->all());
+
+        return redirect()->route('reservations.index')->with('success', 'Réservation mise à jour avec succès !');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    // Supprimer (admin)
     public function destroy(Reservation $reservation)
     {
-        //
+        $reservation->delete();
+        return redirect()->route('reservations.index')->with('success', 'Réservation supprimée avec succès !');
+    }
+
+    // ---------------- PUBLIC ----------------
+
+    // Formulaire réservation public
+    public function createPublic()
+    {
+        return view('public.reservation.create'); // ton formulaire Blade public
+    }
+
+    // Sauvegarde réservation public
+    public function storePublic(Request $request)
+    {
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'numero_telephone' => 'required|string|max:20',
+            'date' => 'required|date',
+            'heure_debut' => 'required',
+            'heure_fin' => 'required',
+            'nombre_participants' => 'required|integer|min:1',
+            'total' => 'required|numeric|min:0',
+        ]);
+
+        Reservation::create([
+            'nom' => $request->nom,
+            'prenom' => $request->prenom,
+            'numero_telephone' => $request->numero_telephone,
+            'date' => $request->date,
+            'heure_debut' => $request->heure_debut,
+            'heure_fin' => $request->heure_fin,
+            'nombre_participants' => $request->nombre_participants,
+            'total' => $request->total,
+        ]);
+
+        return redirect()->route('reservation.create')->with('success', 'Réservation effectuée avec succès !');
     }
 }
